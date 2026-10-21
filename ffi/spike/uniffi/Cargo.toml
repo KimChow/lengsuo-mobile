@@ -1,0 +1,31 @@
+[package]
+name = "lengsuo-spike-uniffi"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "FFI spike：uniffi 方案（候选）——Udl/Proc-macro 声明 + 自动生成 Swift/Kotlin 绑定"
+
+[lib]
+name = "lengsuo_spike_uniffi"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[dependencies]
+thiserror.workspace = true
+# uniffi 运行时 + proc-macro（声明式绑定）。
+# ⚠️ 新增依赖：按卡面要求「写进报告等主理人拍板」，本卡不擅自加进 `ffi/` 主体。
+#
+# ⚠️ **不要**在这里开 `features = ["build"]`：
+#    `build` 会把 `uniffi_build`（进而整个 codegen 栈：askama/serde_json/toml…）
+#    拉进**运行时**依赖 ⇒ 打进最终产物的 .a/.so 凭空胖一大圈。
+#    本 spike 用的是 **proc-macro 模式**（`#[derive(Enum)]` + `#[uniffi::export]`），
+#    根本不需要 `uniffi_build`；只有走 UDL 文件时才需要。
+uniffi = { version = "0.32.2", default-features = false }
+
+[build-dependencies]
+# 仅供 `build.rs` 生成 scaffolding 用（build 期依赖，不进运行时产物）。
+uniffi = { version = "0.32.2", default-features = false, features = ["build"] }
+
+[[package.metadata.uniffi]]
+# 命名空间：生成的 Swift/Kotlin 绑定里的类型名前缀。
+namespace = "spike"

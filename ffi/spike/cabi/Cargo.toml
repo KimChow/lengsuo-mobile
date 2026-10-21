@@ -1,0 +1,17 @@
+[package]
+name = "lengsuo-spike-cabi"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "FFI spike：手写 C ABI 方案（对照）——extern \"C\" + 手写内存/错误/回调管理"
+
+[lib]
+name = "lengsuo_spike_cabi"
+# 三种产物形态都要：host 上要 .so 供 JNA/Swift 加载，
+# 移动端要 .a（Android 的 .so 由 NDK 链接产出，见报告测项 2）。
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[dependencies]
+# 共享的样例核心用 `thiserror` 定义错误类型。
+thiserror.workspace = true
