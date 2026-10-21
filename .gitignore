@@ -1,0 +1,32 @@
+# ---- 构建产物 / 依赖缓存 ----
+target/
+build/
+.gradle/
+DerivedData/
+Pods/
+*.o
+*.a
+*.class
+
+# ---- 密钥与凭据（绝不入库）----
+*.keystore
+*.jks
+*.p12
+*.mobileprovision
+*.cer
+*.pem
+*.key
+.env
+.env.*
+local.properties
+
+# ---- 机器本地信息 ----
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.iml
+
+# ---- 日志与临时 ----
+*.log
+*.tmp
