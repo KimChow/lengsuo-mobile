@@ -1,0 +1,74 @@
+//! **绑定无关**的核心门面层。
+//!
+//! # 这一层为什么存在
+//!
+//! 移动端最终要通过某种 FFI 机制（现成绑定框架 / 手写 ABI / 未来的其它方案）
+//! 调用 Rust 协议栈。绑定机制的选择**不应污染业务逻辑**：
+//!
+//! ```text
+//!   Swift / Kotlin
+//!        │  （绑定层：具体方案尚未定稿，不在本模块）
+//!        ▼
+//!   lengsuo_mobile_ffi::core   ← 本模块：纯 Rust、绑定无关
+//!        │
+//!        ▼
+//!   lengsuo-link-core          ← 协议语义的唯一实现
+//! ```
+//!
+//! ⇒ 本模块是**唯一**需要被绑定层包装的一层。将来换绑定方案时，
+//! 只替换上面的薄壳，本模块一行不改。
+//!
+//! # 纪律（逐条可检查）
+//!
+//! - ⛔ **不写未检查代码**（crate 级属性已禁止）；
+//! - ⛔ **无 C ABI 导出、无绑定宏**：不出现任何绑定机制；
+//! - ⛔ **无平台依赖、无 IO**（socket / 文件 / 线程 / 计时器）：
+//!   时间一律由调用方传入 `Instant`；
+//! - ⛔ **不新增依赖**：只用 `lengsuo-link-core` + `thiserror`；
+//! - ⛔ **不直接依赖 `lengsuo-wireguard`**：传输密钥的持有与使用全在
+//!   `lengsuo-link-core` 内部，移动端依赖图里不应出现它；
+//! - ⛔ **不重写协议**：帧格式、握手、协商全部委托给 link-core；
+//! - ⛔ **错误不泄密钥**：[`CoreError`] 变体全部无字段，
+//!   `Debug` / `Display` 只输出稳定名字与固定文本。
+//!
+//! # 模块划分
+//!
+//! | 模块 | 内容 |
+//! |---|---|
+//! | [`error`] | 稳定错误类型（名字即跨端契约） |
+//! | [`frame`] | 无状态帧编解码（切帧 / 编码 / 解码） |
+//! | [`session`] | 会话门面（握手 / 封帧 / 解帧 / 世代号） |
+//! | [`negotiate`] | 通道协商门面（能力集 / 模式 / 结果 / 超时） |
+//!
+//! # 最小用法
+//!
+//! ```text
+//! 发起方: SessionConfig::new(Initiator, local_priv, remote_pub)
+//!         → Session::new → create_initiation(seed, index, now)
+//! 响应方: SessionConfig::new(Responder, local_priv, remote_pub)
+//!         → Session::new → consume_initiation(wire, now)
+//!         → create_response(seed, index, now)
+//! 发起方: consume_response(wire, now)
+//! 双方:   seal_frame / open_frame 双向收发
+//! ```
+//!
+//! # 与顶层 `capability` 模块的关系
+//!
+//! 顶层 [`crate::capability`] 是「**本端绑定了哪些能力**」（绑定层的进度声明）；
+//! 本模块协商用的 [`Capability`] 是**协议能力位**。两套位**不合并、不改名**。
+
+pub mod error;
+pub mod frame;
+pub mod negotiate;
+pub mod session;
+
+pub use error::CoreError;
+pub use frame::{
+    decode, decode_exact, encode, split_frames, FrameType, WireFrame, MAX_FRAME_LEN,
+    MAX_FRAME_PAYLOAD_LEN, MAX_PLAIN_LEN,
+};
+pub use negotiate::{
+    Capability, CapabilitySet, ChannelMode, ModeSet, NegotiateState, NegotiationResult, Negotiator,
+    NegotiatorRole,
+};
+pub use session::{Generation, OpenedFrame, Session, SessionConfig, SessionRole, SessionState};
