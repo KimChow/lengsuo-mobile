@@ -1,0 +1,69 @@
+{
+  "_comment": "FFI spike 的跨端测试向量：Rust 侧算出的期望值，Swift/Kotlin 侧必须跑出同样的值。格式刻意用最朴素的 JSON（无依赖），便于移动端直接内嵌。",
+  "key_len": 32,
+  "capability_all": 15,
+  "capability_names": [
+    "FRAME_CODEC",
+    "CHANNEL_NEGOTIATION",
+    "CONNECTION_GENERATION",
+    "EVENT_REPLAY"
+  ],
+  "cases": [
+    {
+      "name": "golden-alpha",
+      "key_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "peer_label": "peer-a",
+      "epoch": 1,
+      "capabilities": 15,
+      "fingerprint": 16630484232385628869,
+      "session_id": "s-e6cb594c1a148ac5"
+    },
+    {
+      "name": "golden-beta",
+      "key_hex": "030a11181f262d343b424950575e656c737a81888f969da4abb2b9c0c7ced5dc",
+      "peer_label": "peer-b",
+      "epoch": 1,
+      "capabilities": 15,
+      "fingerprint": 11720265927062773285,
+      "session_id": "s-a2a6bfc397b0de25"
+    },
+    {
+      "name": "golden-gamma",
+      "key_hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "peer_label": "对端-γ",
+      "epoch": 1,
+      "capabilities": 15,
+      "fingerprint": 13376576374488402469,
+      "session_id": "s-b9a3255728438a25"
+    }
+  ],
+  "error_cases": [
+    {
+      "name": "short-key",
+      "key_hex": "01020304",
+      "peer_label": "peer-a",
+      "error_code": 1,
+      "error_kind": "KeyLength"
+    },
+    {
+      "name": "empty-label",
+      "key_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "peer_label": "",
+      "error_code": 4,
+      "error_kind": "InvalidPeerLabel"
+    },
+    {
+      "name": "unknown-capability-bit",
+      "key_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "peer_label": "peer-a",
+      "error_code": 3,
+      "error_kind": "InvalidCapability"
+    }
+  ],
+  "events": {
+    "count": 3,
+    "seqs": [1, 2, 3],
+    "kinds": ["tick", "tick", "tick"],
+    "payloads": ["e0", "e1", "e2"]
+  }
+}

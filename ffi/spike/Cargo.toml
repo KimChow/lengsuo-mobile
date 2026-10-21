@@ -1,0 +1,37 @@
+# FFI spike 的**独立** cargo workspace。
+#
+# ⛔ 它与 `ffi/` 那个 package **不是同一个 workspace**：
+#    `ffi/Cargo.toml` 保持原样（既有依赖不动、`ffi/Cargo.lock` 不动），
+#    本 workspace 自带 `ffi/spike/Cargo.lock`。
+#    理由：`ffi/Cargo.lock` 不在本卡的 touches 内，改它就越界；
+#    而「spike 需要引入 uniffi」这件事按卡面要求**写进报告等主理人拍板**，
+#    不由本卡擅自塞进生产 crate 的依赖树。
+#
+# ⛔ 整个 `ffi/spike/` 是**隔离区**：选型定稿后由后续卡删掉落选的一份。
+#    它**不进最终产物**，也不引入 tokio / 任何平台依赖。
+[workspace]
+resolver = "2"
+members = ["cabi", "uniffi"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "LicenseRef-Proprietary"
+authors = ["Lengsuo project"]
+
+[workspace.dependencies]
+thiserror = "1"
+
+# 与 `ffi/Cargo.toml` 的 release profile **对齐**，保证两种方案的产物大小可比。
+#
+# ⚠️ 唯一差异：`panic = "unwind"`（`ffi/` 那边是 `panic = "abort"`）。
+#    uniffi 依赖 unwind 才能在 FFI 边界把 panic 变成错误；
+#    手写 C ABI 在 unwind 下 panic 会跨 FFI 边界展开 = UB。
+#    ⇒ 这正是选型要付的代价之一，已实测（见 `docs/ffi-spike.md` 测项 6/9）。
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "unwind"
+strip = "debuginfo"
+debug = 0
