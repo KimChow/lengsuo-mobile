@@ -2,6 +2,9 @@
 
 棱梭移动端 companion App（原生 Swift / Kotlin）+ Rust 协议栈 FFI 绑定层。
 
+> **文档不入库**：`docs/` 全部只保留在本地开发工作区（用于开发进展与验收记录），不随仓库分发，
+> 也不保留在 git 历史中。需要查阅请找开发方索取。
+
 - 远端：GitHub `KimChow/lengsuo-mobile`（**公开**，源码可查看）。
 - 定位：移动端是 **companion**，远程授权范围 = **会话查看 / 工具审批 / 通知**
   （见 `../lengsuo/docs/v1-scope-freeze.md` N11）。
@@ -18,7 +21,7 @@
 | `ffi/` | Rust ⇄ Swift/Kotlin 绑定层（`uniffi` 或手写 C ABI，**待定**） | 骨架 |
 | `ios/` | Swift App 壳（UI / 安全存储 / 推送） | 骨架 |
 | `android/` | Kotlin App 壳（同上） | 骨架 |
-| `docs/` | 跨端协议摘要、移动端设计 | 骨架 |
+| `docs/` | 跨端协议摘要、移动端设计（仅本地，不入库） | 骨架 |
 
 ## 构建现状
 
