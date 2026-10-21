@@ -259,7 +259,7 @@ dependencies = [
 [[package]]
 name = "lengsuo-link-core"
 version = "0.1.0"
-source = "git+https://github.com/KimChow/lengsuo-network.git?rev=bfb55cbf91be2c7b9fba35f938d6b6c9eec3c955#bfb55cbf91be2c7b9fba35f938d6b6c9eec3c955"
+source = "git+https://github.com/KimChow/lengsuo-network.git?rev=9b4e7aa86476acc4a697d2f1fbf8c090987f6922#9b4e7aa86476acc4a697d2f1fbf8c090987f6922"
 dependencies = [
  "lengsuo-wireguard",
  "thiserror 2.0.21",
@@ -276,7 +276,7 @@ dependencies = [
 [[package]]
 name = "lengsuo-wireguard"
 version = "0.1.0"
-source = "git+https://github.com/KimChow/lengsuo-network.git?rev=bfb55cbf91be2c7b9fba35f938d6b6c9eec3c955#bfb55cbf91be2c7b9fba35f938d6b6c9eec3c955"
+source = "git+https://github.com/KimChow/lengsuo-network.git?rev=9b4e7aa86476acc4a697d2f1fbf8c090987f6922#9b4e7aa86476acc4a697d2f1fbf8c090987f6922"
 dependencies = [
  "blake2",
  "chacha20poly1305",
@@ -462,7 +462,7 @@ dependencies = [
 [[package]]
 name = "ss-core"
 version = "0.1.0"
-source = "git+https://github.com/KimChow/lengsuo-network.git?rev=bfb55cbf91be2c7b9fba35f938d6b6c9eec3c955#bfb55cbf91be2c7b9fba35f938d6b6c9eec3c955"
+source = "git+https://github.com/KimChow/lengsuo-network.git?rev=9b4e7aa86476acc4a697d2f1fbf8c090987f6922#9b4e7aa86476acc4a697d2f1fbf8c090987f6922"
 dependencies = [
  "aes-gcm",
  "chacha20poly1305",

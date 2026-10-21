@@ -13,7 +13,7 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 [dependencies]
 # 跨端协议核心：固定 Git revision，不引用本地相对路径。
 # ⚠️ 该仓的 crates/lengsuo-link-core 当前仍是占位实现（协议帧编解码在另卡进行中）。
-lengsuo-link-core = { git = "https://github.com/KimChow/lengsuo-network.git", rev = "bfb55cbf91be2c7b9fba35f938d6b6c9eec3c955" }
+lengsuo-link-core = { git = "https://github.com/KimChow/lengsuo-network.git", rev = "9b4e7aa86476acc4a697d2f1fbf8c090987f6922" }
 thiserror = "1"
 
 [profile.release]
