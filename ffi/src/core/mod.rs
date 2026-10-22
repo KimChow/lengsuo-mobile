@@ -39,6 +39,7 @@
 //! | [`frame`] | 无状态帧编解码（切帧 / 编码 / 解码） |
 //! | [`session`] | 会话门面（握手 / 封帧 / 解帧 / 世代号） |
 //! | [`negotiate`] | 通道协商门面（能力集 / 模式 / 结果 / 超时） |
+//! | [`remote_gate`] | 远程授权门（N11 范围表 / fail-closed 执行侧） |
 //!
 //! # 最小用法
 //!
@@ -60,6 +61,7 @@
 pub mod error;
 pub mod frame;
 pub mod negotiate;
+pub mod remote_gate;
 pub mod session;
 
 pub use error::CoreError;
@@ -70,5 +72,10 @@ pub use frame::{
 pub use negotiate::{
     Capability, CapabilitySet, ChannelMode, ModeSet, NegotiateState, NegotiationResult, Negotiator,
     NegotiatorRole,
+};
+pub use remote_gate::{
+    permission_of_scope, require_scope, scope_of_permission, RemoteGate, RemoteGateError,
+    RemoteGateState, RemoteScope, RemoteScopeSet, KNOWN_MASK, PERM_NOTIFICATION_RECEIVE,
+    PERM_SESSION_VIEW, PERM_TOOL_APPROVE, REMOTE_SCOPE_PERMISSIONS,
 };
 pub use session::{Generation, OpenedFrame, Session, SessionConfig, SessionRole, SessionState};
