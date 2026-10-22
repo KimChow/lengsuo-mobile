@@ -487,7 +487,6 @@ impl UnlockResponse {
     }
 
     /// 消费响应，取走唯一一条明文。
-    #[must_use]
     pub fn into_secret(self) -> UnlockedSecret {
         self.secret
     }
@@ -529,7 +528,7 @@ fn decode_secret_hex(secret_hex: &str) -> Result<UnlockedSecret, UnlockModelErro
         return Err(UnlockModelError::EmptySecret);
     }
     let text = secret_hex.as_bytes();
-    if text.len() % 2 != 0 {
+    if !text.len().is_multiple_of(2) {
         return Err(UnlockModelError::InvalidSecretHex);
     }
     if !text
@@ -539,9 +538,11 @@ fn decode_secret_hex(secret_hex: &str) -> Result<UnlockedSecret, UnlockModelErro
         return Err(UnlockModelError::InvalidSecretHex);
     }
     let mut bytes = Vec::with_capacity(text.len() / 2);
-    for pair in text.chunks_exact(2) {
-        // 上一步已把字符集收紧到 `[0-9a-f]` ⇒ 这里不可能越界。
-        bytes.push((nibble(pair[0]) << 4) | nibble(pair[1]));
+    let mut index = 0;
+    while index < text.len() {
+        // 上一步已把字符集收紧到 `[0-9a-f]`，且长度已校验为偶数 ⇒ 这里不可能越界。
+        bytes.push((nibble(text[index]) << 4) | nibble(text[index + 1]));
+        index += 2;
     }
     Ok(UnlockedSecret { bytes })
 }
