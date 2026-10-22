@@ -41,6 +41,7 @@
 //! | [`negotiate`] | 通道协商门面（能力集 / 模式 / 结果 / 超时） |
 //! | [`remote_gate`] | 远程授权门（N11 范围表 / fail-closed 执行侧） |
 //! | [`device`] | 设备身份模型（设备 ID / 公钥 / NAT 候选 / 指纹） |
+//! | [`unlock`] | 凭据解锁客户端模型（请求体 / 成功响应 / 落码反向映射） |
 //!
 //! # 最小用法
 //!
@@ -66,6 +67,7 @@ pub mod frame;
 pub mod negotiate;
 pub mod remote_gate;
 pub mod session;
+pub mod unlock;
 
 pub use device::{
     fnv1a64_hex, DeviceError, DeviceId, NatCandidate, PublicKey, MAX_DEVICE_ID_LEN,
@@ -86,3 +88,7 @@ pub use remote_gate::{
     PERM_SESSION_VIEW, PERM_TOOL_APPROVE, REMOTE_SCOPE_PERMISSIONS,
 };
 pub use session::{Generation, OpenedFrame, Session, SessionConfig, SessionRole, SessionState};
+pub use unlock::{
+    UnlockModelError, UnlockRequest, UnlockResponse, UnlockServerError, UnlockedSecret,
+    CREDENTIAL_ID_HEX_LEN, SUCCESS_CODE, SUCCESS_MSG, UNLOCK_PATH,
+};
