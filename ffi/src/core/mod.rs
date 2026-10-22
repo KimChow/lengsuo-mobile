@@ -59,6 +59,7 @@
 //! 顶层 [`crate::capability`] 是「**本端绑定了哪些能力**」（绑定层的进度声明）；
 //! 本模块协商用的 [`Capability`] 是**协议能力位**。两套位**不合并、不改名**。
 
+pub mod coord_view;
 pub mod device;
 pub mod error;
 pub mod frame;
