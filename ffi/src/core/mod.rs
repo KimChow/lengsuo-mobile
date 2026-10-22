@@ -40,6 +40,7 @@
 //! | [`session`] | 会话门面（握手 / 封帧 / 解帧 / 世代号） |
 //! | [`negotiate`] | 通道协商门面（能力集 / 模式 / 结果 / 超时） |
 //! | [`remote_gate`] | 远程授权门（N11 范围表 / fail-closed 执行侧） |
+//! | [`device`] | 设备身份模型（设备 ID / 公钥 / NAT 候选 / 指纹） |
 //!
 //! # 最小用法
 //!
@@ -58,12 +59,17 @@
 //! 顶层 [`crate::capability`] 是「**本端绑定了哪些能力**」（绑定层的进度声明）；
 //! 本模块协商用的 [`Capability`] 是**协议能力位**。两套位**不合并、不改名**。
 
+pub mod device;
 pub mod error;
 pub mod frame;
 pub mod negotiate;
 pub mod remote_gate;
 pub mod session;
 
+pub use device::{
+    fnv1a64_hex, DeviceError, DeviceId, NatCandidate, PublicKey, MAX_DEVICE_ID_LEN,
+    MAX_NAT_ADDRESS_LEN, MAX_PUBLIC_KEY_LEN, MIN_PUBLIC_KEY_LEN, SERVER_ERROR_CODES,
+};
 pub use error::CoreError;
 pub use frame::{
     decode, decode_exact, encode, split_frames, FrameType, WireFrame, MAX_FRAME_LEN,

@@ -1,0 +1,392 @@
+{
+  "format": "lengsuo-device-identity-vectors",
+  "version": 1,
+  "spec": "设备身份校验规则（设备 ID / 公钥 / NAT 候选）+ 本地错误码映射",
+  "notes": [
+    "跨端测试向量：Swift / Kotlin 侧读**同一份**文件逐条对拍。",
+    "expect_valid=true ⇒ expect_code=0 且 expect_stable_name 为空。",
+    "expect_canonical：合法输入的规范化结果（公钥为 trim 后文本）。"
+  ],
+  "error_codes": {
+    "InvalidDeviceId": 50100,
+    "InvalidPublicKey": 50102,
+    "InvalidCandidate": 50104,
+    "DeviceOwnershipConflict": 50105
+  },
+  "fnv1a64_golden": [
+    {
+      "input_hex": "",
+      "expect_hex": "cbf29ce484222325"
+    },
+    {
+      "input_hex": "61",
+      "expect_hex": "af63dc4c8601ec8c"
+    },
+    {
+      "input_hex": "666f6f626172",
+      "expect_hex": "85944171f73967e8"
+    }
+  ],
+  "cases": [
+    {
+      "name": "id_valid_alnum",
+      "kind": "device_id",
+      "input": "dev0101",
+      "nat_kind": "",
+      "priority": 0,
+      "expect_valid": true,
+      "expect_code": 0,
+      "expect_stable_name": "",
+      "expect_canonical": "dev0101",
+      "expect_fingerprint": ""
+    },
+    {
+      "name": "id_valid_all_separators",
+      "kind": "device_id",
+      "input": "a-b_c.d:e",
+      "nat_kind": "",
+      "priority": 0,
+      "expect_valid": true,
+      "expect_code": 0,
+      "expect_stable_name": "",
+      "expect_canonical": "a-b_c.d:e",
+      "expect_fingerprint": ""
+    },
+    {
+      "name": "id_max_len_128",
+      "kind": "device_id",
+      "input": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "nat_kind": "",
+      "priority": 0,
+      "expect_valid": true,
+      "expect_code": 0,
+      "expect_stable_name": "",
+      "expect_canonical": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "expect_fingerprint": ""
+    },
+    {
+      "name": "id_empty",
+      "kind": "device_id",
+      "input": "",
+      "nat_kind": "",
+      "priority": 0,
+      "expect_valid": false,
+      "expect_code": 50100,
+      "expect_stable_name": "InvalidDeviceId",
+      "expect_canonical": "",
+      "expect_fingerprint": ""
+    },
+    {
+      "name": "id_whitespace_only",
+      "kind": "device_id",
+      "input": "   ",
+      "nat_kind": "",
+      "priority": 0,
+      "expect_valid": false,
+      "expect_code": 50100,
+      "expect_stable_name": "InvalidDeviceId",
+      "expect_canonical": "",
+      "expect_fingerprint": ""
+    },
+    {
+      "name": "id_too_long_129",
+      "kind": "device_id",
+      "input": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "nat_kind": "",
+      "priority": 0,
+      "expect_valid": false,
+      "expect_code": 50100,
+      "expect_stable_name": "InvalidDeviceId",
+      "expect_canonical": "",
+      "expect_fingerprint": ""
+    },
+    {
+      "name": "id_with_slash",
+      "kind": "device_id",
+      "input": "dev/01",
+      "nat_kind": "",
+      "priority": 0,
+      "expect_valid": false,
+      "expect_code": 50100,
+      "expect_stable_name": "InvalidDeviceId",
+      "expect_canonical": "",
+      "expect_fingerprint": ""
+    },
+    {
+      "name": "id_with_question",
+      "kind": "device_id",
+      "input": "dev?x=1",
+      "nat_kind": "",
+      "priority": 0,
+      "expect_valid": false,
+      "expect_code": 50100,
+      "expect_stable_name": "InvalidDeviceId",
+      "expect_canonical": "",
+      "expect_fingerprint": ""
+    },
+    {
+      "name": "id_with_hash",
+      "kind": "device_id",
+      "input": "dev#1",
+      "nat_kind": "",
+      "priority": 0,
+      "expect_valid": false,
+      "expect_code": 50100,
+      "expect_stable_name": "InvalidDeviceId",
+      "expect_canonical": "",
+      "expect_fingerprint": ""
+    },
+    {
+      "name": "id_with_percent",
+      "kind": "device_id",
+      "input": "dev%2F",
+      "nat_kind": "",
+      "priority": 0,
+      "expect_valid": false,
+      "expect_code": 50100,
+      "expect_stable_name": "InvalidDeviceId",
+      "expect_canonical": "",
+      "expect_fingerprint": ""
+    },
+    {
+      "name": "id_non_ascii",
+      "kind": "device_id",
+      "input": "设备-01",
+      "nat_kind": "",
+      "priority": 0,
+      "expect_valid": false,
+      "expect_code": 50100,
+      "expect_stable_name": "InvalidDeviceId",
+      "expect_canonical": "",
+      "expect_fingerprint": ""
+    },
+    {
+      "name": "key_len_16",
+      "kind": "public_key",
+      "input": "AAAAAAAAAAAAAAAA",
+      "nat_kind": "",
+      "priority": 0,
+      "expect_valid": true,
+      "expect_code": 0,
+      "expect_stable_name": "",
+      "expect_canonical": "AAAAAAAAAAAAAAAA",
+      "expect_fingerprint": "15ac6239832e2a75"
+    },
+    {
+      "name": "key_len_512",
+      "kind": "public_key",
+      "input": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "nat_kind": "",
+      "priority": 0,
+      "expect_valid": true,
+      "expect_code": 0,
+      "expect_stable_name": "",
+      "expect_canonical": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "expect_fingerprint": "3beb2df904f68d25"
+    },
+    {
+      "name": "key_base64_chars",
+      "kind": "public_key",
+      "input": "AAAA+BBB/CCC==DD",
+      "nat_kind": "",
+      "priority": 0,
+      "expect_valid": true,
+      "expect_code": 0,
+      "expect_stable_name": "",
+      "expect_canonical": "AAAA+BBB/CCC==DD",
+      "expect_fingerprint": "db66a50a8c143f8e"
+    },
+    {
+      "name": "key_base64url_chars",
+      "kind": "public_key",
+      "input": "AAAA-BBB_CCCDDDED",
+      "nat_kind": "",
+      "priority": 0,
+      "expect_valid": true,
+      "expect_code": 0,
+      "expect_stable_name": "",
+      "expect_canonical": "AAAA-BBB_CCCDDDED",
+      "expect_fingerprint": "c20b69924ca5618f"
+    },
+    {
+      "name": "key_hex_chars",
+      "kind": "public_key",
+      "input": "0123456789abcdef",
+      "nat_kind": "",
+      "priority": 0,
+      "expect_valid": true,
+      "expect_code": 0,
+      "expect_stable_name": "",
+      "expect_canonical": "0123456789abcdef",
+      "expect_fingerprint": "2e373913e5ad677d"
+    },
+    {
+      "name": "key_trimmed",
+      "kind": "public_key",
+      "input": "  AAAAAAAAAAAAAAAA  ",
+      "nat_kind": "",
+      "priority": 0,
+      "expect_valid": true,
+      "expect_code": 0,
+      "expect_stable_name": "",
+      "expect_canonical": "AAAAAAAAAAAAAAAA",
+      "expect_fingerprint": "15ac6239832e2a75"
+    },
+    {
+      "name": "key_len_15",
+      "kind": "public_key",
+      "input": "AAAAAAAAAAAAAAA",
+      "nat_kind": "",
+      "priority": 0,
+      "expect_valid": false,
+      "expect_code": 50102,
+      "expect_stable_name": "InvalidPublicKey",
+      "expect_canonical": "",
+      "expect_fingerprint": ""
+    },
+    {
+      "name": "key_len_513",
+      "kind": "public_key",
+      "input": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "nat_kind": "",
+      "priority": 0,
+      "expect_valid": false,
+      "expect_code": 50102,
+      "expect_stable_name": "InvalidPublicKey",
+      "expect_canonical": "",
+      "expect_fingerprint": ""
+    },
+    {
+      "name": "key_with_bang",
+      "kind": "public_key",
+      "input": "AAAAAAAAAAAAAAAA!",
+      "nat_kind": "",
+      "priority": 0,
+      "expect_valid": false,
+      "expect_code": 50102,
+      "expect_stable_name": "InvalidPublicKey",
+      "expect_canonical": "",
+      "expect_fingerprint": ""
+    },
+    {
+      "name": "key_with_space",
+      "kind": "public_key",
+      "input": "AAAA AAAAAAAAAAAAAA",
+      "nat_kind": "",
+      "priority": 0,
+      "expect_valid": false,
+      "expect_code": 50102,
+      "expect_stable_name": "InvalidPublicKey",
+      "expect_canonical": "",
+      "expect_fingerprint": ""
+    },
+    {
+      "name": "cand_host",
+      "kind": "nat_candidate",
+      "input": "192.0.2.1:3478",
+      "nat_kind": "host",
+      "priority": 100,
+      "expect_valid": true,
+      "expect_code": 0,
+      "expect_stable_name": "",
+      "expect_canonical": "192.0.2.1:3478",
+      "expect_fingerprint": ""
+    },
+    {
+      "name": "cand_srflx",
+      "kind": "nat_candidate",
+      "input": "203.0.113.9:3478",
+      "nat_kind": "srflx",
+      "priority": 50,
+      "expect_valid": true,
+      "expect_code": 0,
+      "expect_stable_name": "",
+      "expect_canonical": "203.0.113.9:3478",
+      "expect_fingerprint": ""
+    },
+    {
+      "name": "cand_relay_ipv6",
+      "kind": "nat_candidate",
+      "input": "[2001:db8::1]:3478",
+      "nat_kind": "relay",
+      "priority": 10,
+      "expect_valid": true,
+      "expect_code": 0,
+      "expect_stable_name": "",
+      "expect_canonical": "[2001:db8::1]:3478",
+      "expect_fingerprint": ""
+    },
+    {
+      "name": "cand_kind_typo",
+      "kind": "nat_candidate",
+      "input": "192.0.2.1:3478",
+      "nat_kind": "srflx2",
+      "priority": 0,
+      "expect_valid": false,
+      "expect_code": 50104,
+      "expect_stable_name": "InvalidCandidate",
+      "expect_canonical": "",
+      "expect_fingerprint": ""
+    },
+    {
+      "name": "cand_kind_uppercase",
+      "kind": "nat_candidate",
+      "input": "192.0.2.1:3478",
+      "nat_kind": "HOST",
+      "priority": 0,
+      "expect_valid": false,
+      "expect_code": 50104,
+      "expect_stable_name": "InvalidCandidate",
+      "expect_canonical": "",
+      "expect_fingerprint": ""
+    },
+    {
+      "name": "cand_address_empty",
+      "kind": "nat_candidate",
+      "input": "",
+      "nat_kind": "host",
+      "priority": 0,
+      "expect_valid": false,
+      "expect_code": 50104,
+      "expect_stable_name": "InvalidCandidate",
+      "expect_canonical": "",
+      "expect_fingerprint": ""
+    },
+    {
+      "name": "cand_address_too_long",
+      "kind": "nat_candidate",
+      "input": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "nat_kind": "host",
+      "priority": 0,
+      "expect_valid": false,
+      "expect_code": 50104,
+      "expect_stable_name": "InvalidCandidate",
+      "expect_canonical": "",
+      "expect_fingerprint": ""
+    },
+    {
+      "name": "cand_address_with_space",
+      "kind": "nat_candidate",
+      "input": "192.0.2.1: 3478",
+      "nat_kind": "srflx",
+      "priority": 0,
+      "expect_valid": false,
+      "expect_code": 50104,
+      "expect_stable_name": "InvalidCandidate",
+      "expect_canonical": "",
+      "expect_fingerprint": ""
+    },
+    {
+      "name": "cand_address_with_tab",
+      "kind": "nat_candidate",
+      "input": "192.0.2.1:\t3478",
+      "nat_kind": "srflx",
+      "priority": 0,
+      "expect_valid": false,
+      "expect_code": 50104,
+      "expect_stable_name": "InvalidCandidate",
+      "expect_canonical": "",
+      "expect_fingerprint": ""
+    }
+  ]
+}
