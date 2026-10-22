@@ -1,0 +1,474 @@
+{
+  "format": "lengsuo-unlock-client-vectors",
+  "version": 1,
+  "spec": "服务端契约 docs/server-contract/04-fingerprint.md §7.6（POST /client/secrets/unlock）",
+  "notes": [
+    "跨端测试向量：Swift / Kotlin 侧读**同一份**文件逐条对拍，不靠真机。",
+    "请求体四项且仅四项：credential_id / secret_id / store_id / device_id。",
+    "tenant_id / user_id / aad 一律按未知字段拒（contract 10002）。",
+    "credential_id 入参大小写皆可，规范形态是小写（expect_canonical_credential_id）。",
+    "成功响应恒为 code=0 / msg=ok / data={\"secret\":\"<小写 hex>\"}，只解一条、只回一条。",
+    "响应码非 0 时即使 data 里有 secret 也必须拒；未知码一律 fail-closed。",
+    "请求用例省略的字段取固定合法默认值：credential_id=00112233445566778899aabbccddeeff、secret_id=secret-1、store_id=store-1、device_id=dev0101。",
+    "expect_valid=true ⇒ expect_code=0 且 expect_stable_name 为空。"
+  ],
+  "endpoint": {
+    "path": "/client/secrets/unlock",
+    "method": "POST"
+  },
+  "success": {
+    "code": 0,
+    "msg": "ok",
+    "data": {
+      "secret": "<lowercase hex>"
+    }
+  },
+  "error_codes": {
+    "CredentialReferenceInvalid": 60006,
+    "UnlockAuditBlocked": 60007,
+    "InvalidRequest": 10002,
+    "PermissionDenied": 50116,
+    "EndpointAbsent": 10404,
+    "InvalidDeviceId": 50100
+  },
+  "request_fields": [
+    "credential_id",
+    "secret_id",
+    "store_id",
+    "device_id"
+  ],
+  "forbidden_fields": [
+    "tenant_id",
+    "user_id",
+    "aad"
+  ],
+  "request_cases": [
+    {
+      "name": "req_valid_defaults",
+      "expect_valid": true,
+      "expect_code": 0,
+      "expect_stable_name": ""
+    },
+    {
+      "name": "req_credential_uppercase_is_accepted_canonical_lowercase",
+      "credential_id": "00112233445566778899AABBCCDDEEFF",
+      "expect_valid": true,
+      "expect_code": 0,
+      "expect_stable_name": "",
+      "expect_canonical_credential_id": "00112233445566778899aabbccddeeff"
+    },
+    {
+      "name": "req_credential_mixed_case_is_accepted_canonical_lowercase",
+      "credential_id": "00112233445566778899aAbBcCdDeEfF",
+      "expect_valid": true,
+      "expect_code": 0,
+      "expect_stable_name": "",
+      "expect_canonical_credential_id": "00112233445566778899aabbccddeeff"
+    },
+    {
+      "name": "req_credential_len_31",
+      "credential_id": "00112233445566778899aabbccddeef",
+      "expect_valid": false,
+      "expect_code": 10002,
+      "expect_stable_name": "InvalidCredentialId"
+    },
+    {
+      "name": "req_credential_len_33",
+      "credential_id": "00112233445566778899aabbccddeeff0",
+      "expect_valid": false,
+      "expect_code": 10002,
+      "expect_stable_name": "InvalidCredentialId"
+    },
+    {
+      "name": "req_credential_empty",
+      "credential_id": "",
+      "expect_valid": false,
+      "expect_code": 10002,
+      "expect_stable_name": "InvalidCredentialId"
+    },
+    {
+      "name": "req_credential_non_hex",
+      "credential_id": "00112233445566778899aabbccddeefg",
+      "expect_valid": false,
+      "expect_code": 10002,
+      "expect_stable_name": "InvalidCredentialId"
+    },
+    {
+      "name": "req_credential_leading_space",
+      "credential_id": " 00112233445566778899aabbccddeeff",
+      "expect_valid": false,
+      "expect_code": 10002,
+      "expect_stable_name": "InvalidCredentialId"
+    },
+    {
+      "name": "req_secret_id_empty",
+      "secret_id": "",
+      "expect_valid": false,
+      "expect_code": 10002,
+      "expect_stable_name": "InvalidSecretId"
+    },
+    {
+      "name": "req_secret_id_whitespace_only",
+      "secret_id": "   ",
+      "expect_valid": false,
+      "expect_code": 10002,
+      "expect_stable_name": "InvalidSecretId"
+    },
+    {
+      "name": "req_secret_id_padded_but_non_empty_is_kept",
+      "secret_id": " secret-1 ",
+      "expect_valid": true,
+      "expect_code": 0,
+      "expect_stable_name": ""
+    },
+    {
+      "name": "req_store_id_empty",
+      "store_id": "",
+      "expect_valid": false,
+      "expect_code": 10002,
+      "expect_stable_name": "InvalidStoreId"
+    },
+    {
+      "name": "req_store_id_whitespace_only",
+      "store_id": "\t\n",
+      "expect_valid": false,
+      "expect_code": 10002,
+      "expect_stable_name": "InvalidStoreId"
+    },
+    {
+      "name": "req_device_id_empty",
+      "device_id": "",
+      "expect_valid": false,
+      "expect_code": 50100,
+      "expect_stable_name": "InvalidDeviceId"
+    },
+    {
+      "name": "req_device_id_whitespace_only",
+      "device_id": "   ",
+      "expect_valid": false,
+      "expect_code": 50100,
+      "expect_stable_name": "InvalidDeviceId"
+    },
+    {
+      "name": "req_device_id_slash",
+      "device_id": "dev/1",
+      "expect_valid": false,
+      "expect_code": 50100,
+      "expect_stable_name": "InvalidDeviceId"
+    },
+    {
+      "name": "req_device_id_percent",
+      "device_id": "dev%2F",
+      "expect_valid": false,
+      "expect_code": 50100,
+      "expect_stable_name": "InvalidDeviceId"
+    },
+    {
+      "name": "req_device_id_non_ascii",
+      "device_id": "设备-01",
+      "expect_valid": false,
+      "expect_code": 50100,
+      "expect_stable_name": "InvalidDeviceId"
+    },
+    {
+      "name": "req_device_id_too_long_129",
+      "device_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "expect_valid": false,
+      "expect_code": 50100,
+      "expect_stable_name": "InvalidDeviceId"
+    },
+    {
+      "name": "req_device_id_max_len_128",
+      "device_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "expect_valid": true,
+      "expect_code": 0,
+      "expect_stable_name": ""
+    },
+    {
+      "name": "req_device_id_all_separators",
+      "device_id": "a-b_c.d:e",
+      "expect_valid": true,
+      "expect_code": 0,
+      "expect_stable_name": ""
+    }
+  ],
+  "unknown_field_cases": [
+    {
+      "name": "req_unknown_tenant_id",
+      "field": "tenant_id",
+      "expect_code": 10002,
+      "expect_stable_name": "UnknownField"
+    },
+    {
+      "name": "req_unknown_user_id",
+      "field": "user_id",
+      "expect_code": 10002,
+      "expect_stable_name": "UnknownField"
+    },
+    {
+      "name": "req_unknown_aad",
+      "field": "aad",
+      "expect_code": 10002,
+      "expect_stable_name": "UnknownField"
+    },
+    {
+      "name": "req_unknown_arbitrary",
+      "field": "passkey_id",
+      "expect_code": 10002,
+      "expect_stable_name": "UnknownField"
+    }
+  ],
+  "response_cases": [
+    {
+      "name": "resp_ok_4_bytes",
+      "secret_hex": "deadbeef",
+      "expect_ok": true,
+      "expect_secret_len": 4
+    },
+    {
+      "name": "resp_ok_16_bytes",
+      "secret_hex": "00112233445566778899aabbccddeeff",
+      "expect_ok": true,
+      "expect_secret_len": 16
+    },
+    {
+      "name": "resp_empty_secret",
+      "secret_hex": "",
+      "expect_ok": false,
+      "expect_code": 60006,
+      "expect_stable_name": "EmptySecret"
+    },
+    {
+      "name": "resp_uppercase_hex",
+      "secret_hex": "DEADBEEF",
+      "expect_ok": false,
+      "expect_code": 60006,
+      "expect_stable_name": "InvalidSecretHex"
+    },
+    {
+      "name": "resp_mixed_case_hex",
+      "secret_hex": "DeadBeef",
+      "expect_ok": false,
+      "expect_code": 60006,
+      "expect_stable_name": "InvalidSecretHex"
+    },
+    {
+      "name": "resp_odd_length_hex",
+      "secret_hex": "abc",
+      "expect_ok": false,
+      "expect_code": 60006,
+      "expect_stable_name": "InvalidSecretHex"
+    },
+    {
+      "name": "resp_non_hex",
+      "secret_hex": "deadbeez",
+      "expect_ok": false,
+      "expect_code": 60006,
+      "expect_stable_name": "InvalidSecretHex"
+    },
+    {
+      "name": "resp_0x_prefix",
+      "secret_hex": "0xdeadbeef",
+      "expect_ok": false,
+      "expect_code": 60006,
+      "expect_stable_name": "InvalidSecretHex"
+    },
+    {
+      "name": "resp_space_separated",
+      "secret_hex": "dead beef",
+      "expect_ok": false,
+      "expect_code": 60006,
+      "expect_stable_name": "InvalidSecretHex"
+    },
+    {
+      "name": "resp_code_60006_with_secret_is_rejected",
+      "code": 60006,
+      "msg": "credential_reference_invalid",
+      "secret_hex": "deadbeef",
+      "expect_ok": false,
+      "expect_code": 60006,
+      "expect_stable_name": "ServerRejected"
+    },
+    {
+      "name": "resp_code_60007_with_secret_is_rejected",
+      "code": 60007,
+      "msg": "unlock_audit_blocked",
+      "secret_hex": "deadbeef",
+      "expect_ok": false,
+      "expect_code": 60007,
+      "expect_stable_name": "ServerRejected"
+    },
+    {
+      "name": "resp_code_50116_with_secret_is_rejected",
+      "code": 50116,
+      "msg": "permission_denied",
+      "secret_hex": "deadbeef",
+      "expect_ok": false,
+      "expect_code": 50116,
+      "expect_stable_name": "ServerRejected"
+    },
+    {
+      "name": "resp_code_10404_with_secret_is_rejected",
+      "code": 10404,
+      "msg": "not_found",
+      "secret_hex": "deadbeef",
+      "expect_ok": false,
+      "expect_code": 10404,
+      "expect_stable_name": "ServerRejected"
+    },
+    {
+      "name": "resp_code_50100_with_secret_is_rejected",
+      "code": 50100,
+      "msg": "invalid_device_id",
+      "secret_hex": "deadbeef",
+      "expect_ok": false,
+      "expect_code": 50100,
+      "expect_stable_name": "ServerRejected"
+    },
+    {
+      "name": "resp_code_10002_with_secret_is_rejected",
+      "code": 10002,
+      "msg": "invalid_request",
+      "secret_hex": "deadbeef",
+      "expect_ok": false,
+      "expect_code": 10002,
+      "expect_stable_name": "ServerRejected"
+    },
+    {
+      "name": "resp_code_unknown_99999_with_secret_is_rejected",
+      "code": 99999,
+      "msg": "ok",
+      "secret_hex": "deadbeef",
+      "expect_ok": false,
+      "expect_code": 10002,
+      "expect_stable_name": "UnexpectedStatus"
+    },
+    {
+      "name": "resp_code_zero_bad_msg",
+      "msg": "OK",
+      "secret_hex": "deadbeef",
+      "expect_ok": false,
+      "expect_code": 10002,
+      "expect_stable_name": "UnexpectedStatus"
+    },
+    {
+      "name": "resp_code_zero_empty_msg",
+      "msg": "",
+      "secret_hex": "deadbeef",
+      "expect_ok": false,
+      "expect_code": 10002,
+      "expect_stable_name": "UnexpectedStatus"
+    },
+    {
+      "name": "resp_one_secret_in_list",
+      "secrets": [
+        "deadbeef"
+      ],
+      "expect_ok": true,
+      "expect_secret_len": 4
+    },
+    {
+      "name": "resp_zero_secrets_in_list",
+      "secrets": [],
+      "expect_ok": false,
+      "expect_code": 60006,
+      "expect_stable_name": "EmptySecret"
+    },
+    {
+      "name": "resp_two_secrets_in_list",
+      "secrets": [
+        "deadbeef",
+        "cafe"
+      ],
+      "expect_ok": false,
+      "expect_code": 60006,
+      "expect_stable_name": "SecretNotSingle"
+    },
+    {
+      "name": "resp_two_secrets_with_nonzero_code",
+      "code": 60006,
+      "msg": "credential_reference_invalid",
+      "secrets": [
+        "deadbeef",
+        "cafe"
+      ],
+      "expect_ok": false,
+      "expect_code": 60006,
+      "expect_stable_name": "ServerRejected"
+    }
+  ],
+  "server_error_cases": [
+    {
+      "name": "code_60006_credential_reference_invalid",
+      "code": 60006,
+      "expect_known": true,
+      "expect_variant": "CredentialReferenceInvalid",
+      "expect_msg": "credential_reference_invalid",
+      "expect_http": 403
+    },
+    {
+      "name": "code_60007_unlock_audit_blocked",
+      "code": 60007,
+      "expect_known": true,
+      "expect_variant": "UnlockAuditBlocked",
+      "expect_msg": "unlock_audit_blocked",
+      "expect_http": 503
+    },
+    {
+      "name": "code_10002_invalid_request",
+      "code": 10002,
+      "expect_known": true,
+      "expect_variant": "InvalidRequest",
+      "expect_msg": "invalid_request",
+      "expect_http": 400
+    },
+    {
+      "name": "code_50116_permission_denied",
+      "code": 50116,
+      "expect_known": true,
+      "expect_variant": "PermissionDenied",
+      "expect_msg": "permission_denied",
+      "expect_http": 403
+    },
+    {
+      "name": "code_10404_endpoint_absent",
+      "code": 10404,
+      "expect_known": true,
+      "expect_variant": "EndpointAbsent",
+      "expect_msg": "not_found",
+      "expect_http": 404
+    },
+    {
+      "name": "code_50100_invalid_device_id",
+      "code": 50100,
+      "expect_known": true,
+      "expect_variant": "InvalidDeviceId",
+      "expect_msg": "invalid_device_id",
+      "expect_http": 400
+    },
+    {
+      "name": "code_99999_unknown",
+      "code": 99999,
+      "expect_known": false,
+      "expect_variant": ""
+    },
+    {
+      "name": "code_60005_unknown",
+      "code": 60005,
+      "expect_known": false,
+      "expect_variant": ""
+    },
+    {
+      "name": "code_50101_not_in_this_endpoint",
+      "code": 50101,
+      "expect_known": false,
+      "expect_variant": ""
+    },
+    {
+      "name": "code_zero_is_success_not_server_error",
+      "code": 0,
+      "expect_known": false,
+      "expect_variant": ""
+    }
+  ]
+}
