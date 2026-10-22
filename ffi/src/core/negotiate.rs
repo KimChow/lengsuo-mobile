@@ -11,10 +11,22 @@
 //!
 //! 门面**不另编一套位定义**，只做稳定包装与错误映射。
 //!
+//! # 门面板 ⇄ 协议能力位：**显式对照表 + fail-closed 换算**
+//!
+//! 本仓顶层 [`crate::capability`] 的**门面板**位（绑定层的能力声明）与
+//! 协议能力位是**两个命名空间**：位号不同、语义也不同
+//! （例：门面板的「事件回放」在协议侧**根本不存在**）。
+//!
+//! ⇒ 两者**不得**互相塞：跨命名空间的换算**只能**走
+//! [`capability_set_from_facade`]，它按 [`FACADE_CAPABILITY_MAP`] 逐项换算，
+//! **未登记位 / 无协议对应 ⇒ 报错**（⛔ 不静默丢弃、不静默当已知位）。
+//!
 //! # fail-closed
 //!
 //! - 通道模式**无交集** ⇒ [`CoreError::NoCommonChannelMode`]，
 //!   ⛔ **绝不**回退到默认 `p2p`；
+//! - 门面板位换算不出协议能力 ⇒ [`CoreError::NegotiationFailed`]，
+//!   ⛔ **绝不**用 `known_only()` 之类静默丢弃；
 //! - 协商失败后**没有任何结果**可回退；
 //! - 超时由调用方传入时间戳判定（本层不起计时器），
 //!   [`Negotiator::check_timeout`] 把它变成稳定的 [`CoreError::Timeout`]。
@@ -30,6 +42,102 @@ pub use lengsuo_link_core::negotiate::{
     Capability, CapabilitySet, ChannelMode, ModeSet, NegotiateState, NegotiationResult,
     NegotiatorRole,
 };
+
+/// 门面板位 → 协议能力位 的**逐项显式对照表**。
+///
+/// # 为什么要有这张表
+///
+/// 门面板（[`crate::capability`]）与协议能力集（[`Capability`]）是**两个命名空间**，
+/// 位号**不得**互相复用。跨命名空间的换算**只能**走这张表 ——
+/// ⛔ 不得靠「位号碰巧一致」隐式对齐。
+///
+/// # 每一项的含义
+///
+/// `(门面板位, 该门面板位对应的协议能力)`：
+///
+/// - `Some(cap)` ⇒ 该门面板能力**对应**协议能力 `cap`，换算成协议位 `cap.bit()`；
+/// - `None` ⇒ 该门面板能力在**协议侧没有对应能力** ⇒ 它**不得**占用任何协议位号，
+///   换算时**必须报错**（fail-closed）。
+///
+/// # 当前状态：四项全为「协议侧无对应」
+///
+/// 门面板的四项分别描述「帧编解码 / 通道协商 / 连接世代号 / 事件回放」，
+/// 协议侧的四项则是「keepalive / 重协商 / 中继只转密文 / 双向流式」——
+/// **语义两两不同**（例如「事件回放」与「双向流式」毫无关系）。
+/// ⇒ **门面板不参与协议协商**。
+pub const FACADE_CAPABILITY_MAP: [(u32, Option<Capability>); 4] = [
+    (crate::capability::FRAME_CODEC, None),
+    (crate::capability::CHANNEL_NEGOTIATION, None),
+    (crate::capability::CONNECTION_GENERATION, None),
+    (crate::capability::EVENT_REPLAY, None),
+];
+
+/// 编译期护栏：门面板**不得**与 link-core **已发布**的能力位重叠。
+///
+/// 重叠即「同名位不同义」⇒ 对端会按协议语义误解 ⇒ 静默漂移。
+/// 这条断言让漂移在**编译期**就暴露，而不是等到协商时。
+const _: () = assert!(
+    crate::capability::ALL_DEFINED as u64 & Capability::known_mask() == 0,
+    "门面板位与 link-core 已发布的能力位重叠 ⇒ 位复用漂移"
+);
+
+/// 编译期护栏：门面板每一位都必须是**单个位**（不是位掩码组合）。
+const _: () = assert!(
+    crate::capability::FRAME_CODEC.count_ones() == 1
+        && crate::capability::CHANNEL_NEGOTIATION.count_ones() == 1
+        && crate::capability::CONNECTION_GENERATION.count_ones() == 1
+        && crate::capability::EVENT_REPLAY.count_ones() == 1,
+    "门面板常量必须是单个位"
+);
+
+/// 把**门面板**位掩码换算成**协议能力集**（fail-closed）。
+///
+/// # 换算规则
+///
+/// - 门面板的每一位必须在 [`FACADE_CAPABILITY_MAP`] 中**登记**，
+///   且登记为 `Some(cap)` ⇒ 换算成协议位 `cap.bit()`；
+/// - **未登记位**（不在表里）⇒ **报错**；
+/// - **登记为「协议侧无对应」**的门面板位 ⇒ **报错**
+///   （⛔ 不得跳过、不得静默丢弃）。
+///
+/// # Errors
+///
+/// 掩码含**未登记位**或**无协议对应**的门面板位 ⇒ [`CoreError::NegotiationFailed`]
+/// （⛔ **不**用 `known_only()` 之类静默丢弃未知位）。
+///
+/// # 为什么这么严格
+///
+/// 门面板与协议能力集是两个命名空间；一旦把门面板位**当成**协议位塞进
+/// `CapabilitySet::from_bits`，对端会按**协议语义**解读 ⇒ 协商**不报错**，
+/// 但双方理解的能力集**完全错位**。⇒ 换算必须**逐项显式**且**fail-closed**。
+pub fn capability_set_from_facade(mask: u32) -> Result<CapabilitySet, CoreError> {
+    capability_set_from_facade_with(mask, &FACADE_CAPABILITY_MAP)
+}
+
+/// [`capability_set_from_facade`] 的可注入对照表版本（内部实现）。
+fn capability_set_from_facade_with(
+    mask: u32,
+    map: &[(u32, Option<Capability>)],
+) -> Result<CapabilitySet, CoreError> {
+    let mut bits = 0u64;
+    for index in 0..32 {
+        let bit = 1u32 << index;
+        if mask & bit == 0 {
+            continue;
+        }
+        let entry = map.iter().find(|entry| entry.0 == bit);
+        // 未登记位 ⇒ fail-closed（⛔ 不静默丢弃）。
+        let Some(&(_, capability)) = entry else {
+            return Err(CoreError::NegotiationFailed);
+        };
+        // 登记为「协议侧无对应」⇒ 同样 fail-closed（⛔ 不静默跳过）。
+        let Some(capability) = capability else {
+            return Err(CoreError::NegotiationFailed);
+        };
+        bits |= capability.bit();
+    }
+    Ok(CapabilitySet::from_bits(bits))
+}
 
 /// 协商器门面：一端的状态机。
 ///
@@ -165,5 +273,39 @@ impl Negotiator {
         } else {
             Ok(())
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// 换算机制本身必须**正确**：登记了映射 ⇒ 换算出的协议位等于
+    /// **link-core 公开 API** 给出的位（⛔ 期望值不得在本仓硬编码位号）。
+    #[test]
+    fn registered_mapping_converts_to_the_link_core_bit() {
+        let map = [(crate::capability::FRAME_CODEC, Some(Capability::Keepalive))];
+        let set = capability_set_from_facade_with(crate::capability::FRAME_CODEC, &map)
+            .expect("已登记的映射应当换算成功");
+        assert_eq!(set.bits(), Capability::Keepalive.bit());
+        assert!(set.contains(Capability::Keepalive));
+        assert_eq!(set.unknown_bits(), 0);
+    }
+
+    /// 未登记位 ⇒ **报错**（⛔ 不静默丢弃、不静默当已知位）。
+    #[test]
+    fn unregistered_bit_is_rejected() {
+        let map = [(crate::capability::FRAME_CODEC, Some(Capability::Keepalive))];
+        let error = capability_set_from_facade_with(1 << 20, &map).expect_err("未登记位必须报错");
+        assert_eq!(error.stable_name(), "NegotiationFailed");
+    }
+
+    /// 登记为「协议侧无对应」⇒ **报错**（⛔ 不静默跳过）。
+    #[test]
+    fn mapping_without_protocol_counterpart_is_rejected() {
+        let map = [(crate::capability::EVENT_REPLAY, None)];
+        let error = capability_set_from_facade_with(crate::capability::EVENT_REPLAY, &map)
+            .expect_err("无协议对应的门面板位必须报错");
+        assert_eq!(error.stable_name(), "NegotiationFailed");
     }
 }

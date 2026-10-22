@@ -19,7 +19,15 @@
 //!
 //! 绑定层（现成绑定框架 / 手写 ABI）**尚未落地**：等主理人对「新增绑定依赖」
 //! 「`panic` 设置」「codegen 步骤」三项拍板后，再在 [`core`] 之上加薄壳。
-//! ⇒ [`supported_capabilities`] 仍返回 `0`（本端尚未暴露任何协议能力）。
+//! ⇒ [`supported_capabilities`] 仍返回 `0`（本端尚未暴露任何**门面板**能力）。
+//!
+//! # 能力位：**门面板**与**协议能力集**是两套东西
+//!
+//! [`capability`] 是**门面板**（本端绑定层实现了哪些功能），
+//! 协议协商用的是 link-core 的 `Capability`（线上可选特性）。
+//! 两者**位号互不相交**，跨命名空间只能走
+//! [`core::negotiate::capability_set_from_facade`] 的**显式对照表**
+//! ⇒ 位序语义漂移在**编译期 / 测试期**就被挡住（见 `tests/capability_align.rs`）。
 //!
 //! ## 绑定方案（**待定**）
 //!
@@ -45,26 +53,67 @@ pub const BINDING_VERSION: &str = env!("CARGO_PKG_VERSION");
 /// 协议核心 crate 的版本（由 Cargo 解析得出，编译期固化）。
 pub const PROTOCOL_CORE_VERSION: &str = "0.1.0";
 
-/// 移动端可用能力位。
+/// 移动端**门面能力位**（绑定层的能力声明面板）。
 ///
-/// 协议协商用：**位**而不是字符串列表，便于移动端（Swift/Kotlin）零成本比对。
-/// 每一位的语义**必须**与 `lengsuo-network` 的协议规范一一对应；
-/// 规范未冻结前**不得**新增位。
+/// 用**位**而不是字符串列表，便于移动端（Swift/Kotlin）零成本比对。
+///
+/// # ⛔ 门面板 ≠ link-core 协议能力集
+///
+/// 本模块的位与 `lengsuo-link-core` 的**协议能力位**
+/// （`Capability`：`Keepalive` / `Renegotiate` / `CiphertextOnlyRelay` /
+/// `StreamBothDirections`）是**两个互不相交的命名空间**：
+///
+/// | 命名空间 | 回答的问题 | 谁定义位号 |
+/// |---|---|---|
+/// | 本模块（门面板） | 本端**绑定层实现了哪些功能** | 本仓 |
+/// | 协议能力集 | 线上协商的**可选特性** | link-core（已发布，不可改） |
+///
+/// ⚠️ **同名位、不同义**：门面板的「密文帧编解码」与协议位 0 的
+/// 「keepalive 保活帧」**毫无关系**。⇒ 门面板位**不得**当作协议位使用：
+/// 一旦被直接塞进 `CapabilitySet::from_bits`，对端会按**协议语义**解读它，
+/// 协商**不报错**而双方理解的能力集**完全错位**（静默漂移）。
+///
+/// # 跨命名空间只能走显式对照表
+///
+/// 门面板 → 协议能力集的唯一通道是
+/// [`crate::core::negotiate::capability_set_from_facade`]：它按**逐项显式的对照表**
+/// 换算，**未登记位 fail-closed 报错**（⛔ 不静默丢弃、不静默当已知位）。
+///
+/// 对照表当前**四项全为「协议侧无对应」**（门面板的四项在协议侧都没有对应能力，
+/// 例如「事件回放」在协议侧根本不存在）⇒ **门面板不参与协议协商**。
+///
+/// # 位号基址：刻意避开协议位
+///
+/// 门面板从 **bit 16** 起编号，避开 link-core **已发布**的 `0..=3`
+/// （语义完全不同，复用即漂移），也避开其**近期保留**的 `4..=15`。
+/// ⇒ 即便有人误把门面板掩码当协议掩码塞进 `CapabilitySet::from_bits`，
+/// link-core 看到的也只是**未知位**（按协议纪律忽略并记录），
+/// 而**不会**误解成 `Keepalive` 等既有能力。
 pub mod capability {
     /// 支持密文帧的编解码（`lengsuo-link-core` 的 `frame` 模块）。
-    pub const FRAME_CODEC: u32 = 1 << 0;
+    pub const FRAME_CODEC: u32 = 1 << 16;
     /// 支持通道协商（`p2p` / `relay`）。
-    pub const CHANNEL_NEGOTIATION: u32 = 1 << 1;
+    pub const CHANNEL_NEGOTIATION: u32 = 1 << 17;
     /// 支持连接世代号（用于中继↔P2P 切换的去重与补齐）。
-    pub const CONNECTION_GENERATION: u32 = 1 << 2;
+    pub const CONNECTION_GENERATION: u32 = 1 << 18;
     /// 支持按游标回溯事件（`afterSeq` 语义）。
-    pub const EVENT_REPLAY: u32 = 1 << 3;
+    pub const EVENT_REPLAY: u32 = 1 << 19;
+
+    /// 全部**已定义**的门面能力位。
+    pub const ALL_DEFINED: u32 =
+        FRAME_CODEC | CHANNEL_NEGOTIATION | CONNECTION_GENERATION | EVENT_REPLAY;
 }
 
 /// 当前实现具备的能力位集合。
 ///
 /// ⛔ **只列真正已实现的**。协议实现尚未合入时，本值应只反映骨架能力，
 /// 不得「预先声明」尚未落地的能力位 —— 否则移动端会以为对端支持而走上错误路径。
+///
+/// # 命名空间
+///
+/// 本值是**门面板**（[`capability`]）的位，⛔ **不是**协议协商用的能力集：
+/// 协议能力集是 link-core 的 `Capability`（见 [`core::negotiate`]），
+/// 两者位号互不相交，**不得**互相塞。
 #[must_use]
 pub const fn supported_capabilities() -> u32 {
     0
