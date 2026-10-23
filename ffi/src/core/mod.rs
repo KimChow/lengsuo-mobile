@@ -40,6 +40,7 @@
 //! | [`session`] | 会话门面（握手 / 封帧 / 解帧 / 世代号） |
 //! | [`negotiate`] | 通道协商门面（能力集 / 模式 / 结果 / 超时） |
 //! | [`remote_gate`] | 远程授权门（N11 范围表 / fail-closed 执行侧） |
+//! | [`server_code`] | 服务端 5 位错误码集中登记表（码 / slug / HTTP / fail-closed） |
 //! | [`device`] | 设备身份模型（设备 ID / 公钥 / NAT 候选 / 指纹） |
 //! | [`unlock`] | 凭据解锁客户端模型（请求体 / 成功响应 / 落码反向映射） |
 //!
@@ -66,6 +67,7 @@ pub mod error;
 pub mod frame;
 pub mod negotiate;
 pub mod remote_gate;
+pub mod server_code;
 pub mod session;
 pub mod unlock;
 
@@ -87,6 +89,7 @@ pub use remote_gate::{
     RemoteGateState, RemoteScope, RemoteScopeSet, KNOWN_MASK, PERM_NOTIFICATION_RECEIVE,
     PERM_SESSION_VIEW, PERM_TOOL_APPROVE, REMOTE_SCOPE_PERMISSIONS,
 };
+pub use server_code::{CodeClass, ServerCode};
 pub use session::{Generation, OpenedFrame, Session, SessionConfig, SessionRole, SessionState};
 pub use unlock::{
     UnlockModelError, UnlockRequest, UnlockResponse, UnlockServerError, UnlockedSecret,
