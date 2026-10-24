@@ -63,4 +63,35 @@
     <string name="chat_model_tier_sending">⚡ 快速 ▾</string>
     <string name="chat_input_voice">语音</string>
     <string name="chat_input_plus">+</string>
+    <!-- 定时任务页（ui/scheduled/）：sched_* 逐字对应参考键 automation.* 与实测截图转录 -->
+    <string name="sched_empty">暂无定时任务</string>
+    <string name="sched_page_title">定时任务</string>
+    <string name="sched_detail_breadcrumb">定时任务</string>
+    <string name="sched_add_fab">添加定时任务</string>
+    <string name="sched_sheet_custom_add">自定义添加</string>
+    <string name="sched_sheet_add_via_chat">以对话方式添加</string>
+    <string name="sched_sheet_cancel">取消</string>
+    <string name="sched_form_hint">定时任务仅支持「定时执行」一种触发形态</string>
+    <string name="sched_form_name_placeholder">例如：每日同步项目动态</string>
+    <string name="sched_form_prompt_placeholder">在这里输入要让 AI 完成的内容，例如：汇总过去 24 小时的项目动态，并整理待跟进事项。</string>
+    <string name="sched_form_schedule_time">执行频率</string>
+    <string name="sched_freq_daily">每天</string>
+    <string name="sched_freq_30m">每 30 分钟</string>
+    <string name="sched_freq_1h">每 1 小时</string>
+    <string name="sched_freq_2h">每 2 小时</string>
+    <string name="sched_freq_4h">每 4 小时</string>
+    <string name="sched_freq_8h">每 8 小时</string>
+    <string name="sched_freq_biweekly">双周</string>
+    <string name="sched_form_validity">有效期</string>
+    <string name="sched_form_validity_long_term">长期有效</string>
+    <string name="sched_form_connectors">连接器</string>
+    <string name="sched_form_experts">专家</string>
+    <string name="sched_form_skills">技能</string>
+    <string name="sched_form_no_selection">未选择 (0)</string>
+    <string name="sched_form_create">创建</string>
+    <string name="sched_card_run">运行</string>
+    <string name="sched_action_more">更多操作</string>
+    <string name="sched_error_name_required">请填写定时任务名称</string>
+    <!-- sched_page_title 与 sched_detail_breadcrumb 同文：前者列表页标题，后者表单顶栏 -->
+    <!-- sched_* 共 28 条；7 档频率顺序见 ScheduledModels.kt FREQUENCY_ORDER -->
 </resources>

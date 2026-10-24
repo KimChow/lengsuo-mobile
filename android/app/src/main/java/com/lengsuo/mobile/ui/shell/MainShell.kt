@@ -20,6 +20,7 @@ import androidx.compose.ui.res.stringResource
 import com.lengsuo.mobile.R
 import com.lengsuo.mobile.ui.home.TasksHomePage
 import com.lengsuo.mobile.ui.me.MePage
+import com.lengsuo.mobile.ui.scheduled.ScheduledPage
 
 @Composable
 fun MainShell() {
@@ -45,6 +46,7 @@ fun MainShell() {
             when (selected) {
                 MainTab.ME -> MePage()
                 MainTab.TASKS -> TasksHomePage()
+                MainTab.SCHEDULED -> ScheduledPage()
                 else -> TabPlaceholder(stringResource(selected.labelRes))
             }
         }
