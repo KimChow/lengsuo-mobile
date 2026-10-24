@@ -55,6 +55,8 @@ fun DrawerSidebar(
     onDismiss: () -> Unit,
     onSelectConversation: (Int) -> Unit,
     onNewTask: () -> Unit,
+    // mb-chat-page 接线：条目点击打开对话页；默认空实现 ⇒ 既有调用零破坏（宿主页传入属后续卡）
+    onOpenConversation: (Int) -> Unit = {},
 ) {
     if (!visible) return
     val palette = LocalLengsuoColors.current
@@ -131,7 +133,10 @@ fun DrawerSidebar(
                                             Color.Transparent
                                         },
                                     )
-                                    .clickable { onSelectConversation(index) }
+                                    .clickable {
+                                        onSelectConversation(index)
+                                        onOpenConversation(index)
+                                    }
                                     .padding(horizontal = 12.dp),
                                 contentAlignment = Alignment.CenterStart,
                             ) {
