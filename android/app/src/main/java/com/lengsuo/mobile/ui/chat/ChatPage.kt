@@ -25,7 +25,7 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.filled.ThumbDown
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -40,7 +40,8 @@ import com.lengsuo.mobile.R
 import com.lengsuo.mobile.ui.theme.LocalLengsuoColors
 
 // 本地交互两态（不做真实网络 / AI 回复 / 持久化，消息一律来自写死示例）
-internal enum class ChatPhase { SENDING, DONE }
+// 注：public（ChatPage 公开签名含此类型，internal 会被编译器拒绝）
+enum class ChatPhase { SENDING, DONE }
 
 // 示例数据（写死；标题 = 首条消息内容，即自动命名规则）
 internal val CHAT_SAMPLE_TITLE = "hello"
@@ -199,10 +200,10 @@ fun ChatPage(
             // 回复工具条 5 键：24×24dp、键间距 12dp（点击均无操作占位）
             Row(horizontalArrangement = Arrangement.spacedBy(TOOLBAR_GAP_DP.dp)) {
                 val toolbarIcons = listOf(
-                    // core 集合无 ContentCopy / VolumeUp，暂代图标（同 TasksHome 麦克风先例），desc 语义为准
+                    // core 集合无 ContentCopy / VolumeUp / ThumbDown，暂代图标（同 TasksHome 麦克风先例），desc 语义为准
                     Icons.Filled.Edit,
                     Icons.Filled.ThumbUp,
-                    Icons.Filled.ThumbDown,
+                    Icons.Filled.Close,
                     Icons.Filled.PlayArrow,
                     Icons.Filled.Share,
                 )
