@@ -2,4 +2,24 @@
 <resources>
     <string name="app_name">Lengsuo Mobile</string>
     <string name="skeleton_placeholder">app skeleton ready</string>
+    <string name="me_title">我的</string>
+    <string name="me_group_general">通用设置</string>
+    <string name="me_group_asset">资产</string>
+    <string name="me_theme">主题</string>
+    <string name="me_language">语言</string>
+    <string name="me_language_value">跟随系统</string>
+    <string name="me_font_size">字体大小</string>
+    <string name="me_font_size_value">默认</string>
+    <string name="me_read_aloud">朗读设置</string>
+    <string name="me_haptic">触感反馈</string>
+    <string name="me_storage">存储空间</string>
+    <string name="me_notifications">消息通知设置</string>
+    <string name="me_memory">记忆库</string>
+    <string name="me_growth">成长计划</string>
+    <string name="me_about">关于</string>
+    <string name="me_plan_free">体验版</string>
+    <string name="me_plan_upgrade">升级套餐</string>
+    <string name="me_points">我的积分</string>
+    <string name="me_placeholder_value">—</string>
+    <string name="me_coming_soon">敬请期待</string>
 </resources>
