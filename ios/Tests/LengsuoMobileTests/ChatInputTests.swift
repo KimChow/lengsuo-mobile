@@ -1,4 +1,5 @@
 import XCTest
+import SwiftUI
 @testable import LengsuoMobile
 
 final class ChatInputTests: XCTestCase {
@@ -99,4 +100,59 @@ final class ChatInputTests: XCTestCase {
         XCTAssertTrue(InputValidator.canSend(text: "hi", attachmentsUploading: false))
     }
 
+    /// `+` 选附件后的态迁移：上传未完成 ⇒ uploading（等待文案）；完成 ⇒ 按文本 ready/idle。
+    func testAfterAttachmentAdded() {
+        XCTAssertEqual(InputPhase.afterAttachmentAdded(current: .idle, uploadStalled: true, text: ""), .uploading)
+        XCTAssertEqual(InputPhase.afterAttachmentAdded(current: .idle, uploadStalled: false, text: ""), .idle)
+        XCTAssertEqual(InputPhase.afterAttachmentAdded(current: .idle, uploadStalled: false, text: "hi"), .ready)
+        // recording 不被附件事件打断（真录音属 10 册）
+        XCTAssertEqual(InputPhase.afterAttachmentAdded(current: .recording, uploadStalled: false, text: "hi"), .recording)
     }
+
+    /// uploading 必须能退出（⛔ 不得成为死态）：上传完成 ⇒ 回 ready/idle。
+    func testUploadingIsNotATerminalState() {
+        XCTAssertEqual(InputPhase.afterAttachmentAdded(current: .uploading, uploadStalled: false, text: "hi"), .ready)
+        XCTAssertEqual(InputPhase.afterAttachmentAdded(current: .uploading, uploadStalled: false, text: ""), .idle)
+        // 仍在上传 ⇒ 留在 uploading（发送继续被挡）
+        XCTAssertEqual(InputPhase.afterAttachmentAdded(current: .uploading, uploadStalled: true, text: "hi"), .uploading)
+    }
+
+    // MARK: 视图（只做可实例化 + 默认值，⛔ 不声称真机渲染）
+
+    /// 占位符 = 04§5 原文串「发消息或按住说话...」，且与 ChatCopy 同字节。
+    func testInputBarDefaultPlaceholderVerbatim() {
+        let bar = ChatInputBar(text: .constant(""), attachments: .constant([]), phase: .constant(.idle))
+        XCTAssertEqual(bar.placeholder, "发消息或按住说话...")
+        XCTAssertEqual(bar.placeholder, ChatCopy.inputPlaceholderIdle)
+    }
+
+    /// 默认模拟上传器：附件名 = 「附件N.pdf」（卡面 §2.2 同形）。
+    func testInputBarDefaultUploadSimulator() {
+        let bar = ChatInputBar(text: .constant(""), attachments: .constant([]), phase: .constant(.idle))
+        XCTAssertEqual(bar.uploadSimulator(1), "附件1.pdf")
+        XCTAssertEqual(bar.uploadSimulator(5), "附件5.pdf")
+    }
+
+    /// 注入「返回 nil」的模拟器 ⇒ 上传未完成态可演示（真上传属后续卡）。
+    func testInputBarInjectedSimulatorCanStallUploading() {
+        let stalling = ChatInputBar(text: .constant(""), attachments: .constant([]),
+                                    phase: .constant(.uploading), uploadSimulator: { _ in nil })
+        XCTAssertNil(stalling.uploadSimulator(1))
+        XCTAssertEqual(stalling.phase, .uploading)
+        let done = ChatInputBar(text: .constant("hi"), attachments: .constant(["a.pdf"]),
+                                phase: .constant(.ready), uploadSimulator: { _ in "b.pdf" })
+        XCTAssertEqual(done.uploadSimulator(2), "b.pdf")
+        XCTAssertEqual(done.attachments, ["a.pdf"])
+        XCTAssertEqual(done.text, "hi")
+    }
+
+    /// 四态均可实例化（两态交互 + 上传中 + 录音高亮）。
+    func testInputBarInstantiatesAllPhases() {
+        for p: InputPhase in [.idle, .ready, .uploading, .recording] {
+            let bar = ChatInputBar(text: .constant(p == .ready ? "hi" : ""),
+                                   attachments: .constant(p == .uploading ? ["a.pdf"] : []),
+                                   phase: .constant(p))
+            XCTAssertEqual(bar.phase, p)
+        }
+    }
+}

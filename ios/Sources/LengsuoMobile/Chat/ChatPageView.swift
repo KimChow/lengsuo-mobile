@@ -13,6 +13,11 @@ public struct ChatPageView: View {
     let userMessage: String
     let aiMessage: String
 
+    /// 输入栏区状态（本卡：静态输入栏 → 可输入两态）。⛔ 未动消息区/工具条/顶栏。
+    @State private var inputText = ""
+    @State private var inputAttachments: [String] = []
+    @State private var inputPhase: InputPhase = .idle
+
     public init(phase: ChatPhase = .done,
                 userMessage: String = "帮我整理这周的工作",
                 aiMessage: String = "好的，以下是本周工作整理…") {
@@ -72,17 +77,14 @@ public struct ChatPageView: View {
         }
     }
 
+    /// 输入栏区：静态版 → 可输入两态 + 附件 chips（`ChatInputBar`）。
+    /// 占位符沿用 `ChatPhase.inputPlaceholder` 两态文案（发送中 = 「发消息...」）。
     private var inputBar: some View {
-        HStack(spacing: 10) {
-            Text(ChatCopy.inputPlus).font(.title3)
-            Text(phase.inputPlaceholder)
-                .font(.subheadline).foregroundStyle(.secondary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.vertical, 8).padding(.horizontal, 12)
-                .background(.quaternary, in: Capsule())
-            Text(ChatCopy.inputVoice).font(.footnote)
-        }
-        .padding(.horizontal, 16).padding(.vertical, 10).background(.bar)
+        ChatInputBar(text: $inputText,
+                     attachments: $inputAttachments,
+                     phase: $inputPhase,
+                     placeholder: phase.inputPlaceholder)
+            .background(.bar)
     }
 }
 

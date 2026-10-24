@@ -27,6 +27,20 @@ public extension InputPhase {
             return InputValidator.canSend(text: text, attachmentsUploading: false) ? .ready : .idle
         }
     }
+
+    /// 附件事件（`+` 选附件）后的态迁移纯函数。
+    /// `uploadStalled`=上传未完成 ⇒ 停在 `.uploading`（真上传属后续卡，等待文案见 04§5）。
+    /// 上传完成 ⇒ 从 uploading 退出，按文本回到 ready/idle（⛔ 不得成为死态）；
+    /// recording 不被附件事件打断（真录音属 10 册）。
+    static func afterAttachmentAdded(current: InputPhase, uploadStalled: Bool, text: String) -> InputPhase {
+        if uploadStalled { return .uploading }
+        switch current {
+        case .recording:
+            return .recording
+        case .uploading, .idle, .ready:
+            return afterTextChange(current: .idle, text: text)
+        }
+    }
 }
 
 /// 纯函数校验器（可测）。
