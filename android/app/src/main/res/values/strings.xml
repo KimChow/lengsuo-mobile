@@ -42,4 +42,8 @@
     <string name="home_input_attachment">添加附件</string>
     <string name="home_input_voice">语音输入</string>
     <string name="home_mascot_placeholder">WorkBuddy 吉祥物</string>
+    <string name="drawer_cloud_group">☁ 云端 ▾</string>
+    <string name="drawer_new_task">新建任务</string>
+    <string name="drawer_empty_cloud">暂无云端任务</string>
+    <string name="drawer_task_group">任务 ▾</string>
 </resources>
