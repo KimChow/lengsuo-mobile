@@ -11,7 +11,7 @@ import json
 import subprocess
 import sys
 
-EXTENSIONS = {".rs", ".ts", ".tsx", ".js", ".jsx", ".py", ".sh", ".toml", ".sql", ".md", ".yml", ".yaml", ".json"}
+EXTENSIONS = {".rs", ".ts", ".tsx", ".js", ".jsx", ".py", ".sh", ".toml", ".sql", ".md", ".yml", ".yaml", ".json", ".swift", ".kt"}
 
 
 def main():
