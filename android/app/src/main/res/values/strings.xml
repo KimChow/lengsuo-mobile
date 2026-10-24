@@ -94,4 +94,31 @@
     <string name="sched_error_name_required">请填写定时任务名称</string>
     <!-- sched_page_title 与 sched_detail_breadcrumb 同文：前者列表页标题，后者表单顶栏 -->
     <!-- sched_* 共 28 条；7 档频率顺序见 ScheduledModels.kt FREQUENCY_ORDER -->
+    <!-- 发现页（ui/discover/）：discover_* 逐字取自文案全表 discover.* 节 -->
+    <string name="discover_search_placeholder">搜索灵感</string>
+    <string name="discover_all_category">全部</string>
+    <string name="discover_section_experts">专家</string>
+    <string name="discover_section_skills">技能</string>
+    <string name="discover_featured">精选</string>
+    <string name="discover_my_favorites">我的收藏</string>
+    <string name="discover_empty_category">暂无该分类的案例</string>
+    <string name="discover_no_category_results">当前分类下暂无内容</string>
+    <string name="discover_no_category_hint">切换其他分类看看</string>
+    <string name="discover_no_search_results">未找到匹配的结果</string>
+    <string name="discover_no_search_hint">试试其他关键词</string>
+    <string name="discover_refresh">换一换</string>
+    <string name="discover_preview">预览</string>
+    <string name="discover_make_same">做同款</string>
+    <string name="discover_favorite">收藏</string>
+    <string name="discover_favorited">已收藏</string>
+    <string name="discover_official">官方</string>
+    <string name="discover_back">返回</string>
+    <string name="discover_subtitle">常见工作流沉淀成可复用的任务起点</string>
+    <string name="discover_description">详细介绍</string>
+    <string name="discover_tags_label">标签类别</string>
+    <!-- 以下 3 条为左侧组 desc 占位键：卡面 §3.2 已给出逐字值，§3.1 常量表未列，按卡面逐字补齐 -->
+    <string name="discover_library">资料库</string>
+    <string name="discover_mcp_detail">连接器详情</string>
+    <string name="discover_project">项目</string>
+    <!-- discover_* 共 24 条；分类受控值 全部/专家/技能 见 DiscoverPage.kt DISCOVER_CATEGORY_VALUES -->
 </resources>
