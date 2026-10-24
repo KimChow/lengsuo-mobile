@@ -121,4 +121,30 @@
     <string name="discover_mcp_detail">连接器详情</string>
     <string name="discover_project">项目</string>
     <!-- discover_* 共 24 条；分类受控值 全部/专家/技能 见 DiscoverPage.kt DISCOVER_CATEGORY_VALUES -->
+    <!-- settings_* 共 24 条：设置中心标题/组头 5 键 + 面板导航 19 键；文案逐字来自语言包 settings.nav.* -->
+    <string name="settings_hub_title">设置</string>
+    <string name="settings_nav_group_general">设置</string>
+    <string name="settings_nav_group_feature">功能</string>
+    <string name="settings_nav_group_data_security">数据与安全</string>
+    <string name="settings_nav_group_about">关于我们</string>
+    <string name="settings_nav_general">通用</string>
+    <string name="settings_nav_account">个人主页</string>
+    <string name="settings_nav_appearance">外观</string>
+    <string name="settings_nav_software_config">软件配置</string>
+    <string name="settings_nav_keyboard_shortcuts">快捷键</string>
+    <string name="settings_nav_models">模型</string>
+    <string name="settings_nav_connectors">连接器</string>
+    <string name="settings_nav_extensions">智能体</string>
+    <string name="settings_nav_buddy_apps">应用管理</string>
+    <string name="settings_nav_claw">频道推送</string>
+    <string name="settings_nav_security_center">安全中心</string>
+    <string name="settings_nav_memory">记忆与进化</string>
+    <string name="settings_nav_data_management">数据管理</string>
+    <string name="settings_nav_subscription_usage">套餐与积分</string>
+    <string name="settings_nav_system_permissions">系统授权</string>
+    <string name="settings_nav_get_help">获取帮助</string>
+    <string name="settings_nav_help_feedback">关于 WorkBuddy</string>
+    <string name="settings_nav_laboratory">实验室</string>
+    <string name="settings_nav_about">关于</string>
+    <!-- settings_* 共 24 条 -->
 </resources>
