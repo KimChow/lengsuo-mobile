@@ -22,4 +22,9 @@
     <string name="me_points">我的积分</string>
     <string name="me_placeholder_value">—</string>
     <string name="me_coming_soon">敬请期待</string>
+    <string name="tab_tasks">任务</string>
+    <string name="tab_scheduled">定时任务</string>
+    <string name="tab_discover">发现</string>
+    <string name="tab_me">我的</string>
+    <string name="tab_coming_soon">敬请期待</string>
 </resources>
