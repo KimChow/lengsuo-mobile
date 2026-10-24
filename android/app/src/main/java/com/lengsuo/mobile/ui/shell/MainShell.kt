@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.lengsuo.mobile.R
+import com.lengsuo.mobile.ui.home.TasksHomePage
 import com.lengsuo.mobile.ui.me.MePage
 
 @Composable
@@ -43,6 +44,7 @@ fun MainShell() {
         ) {
             when (selected) {
                 MainTab.ME -> MePage()
+                MainTab.TASKS -> TasksHomePage()
                 else -> TabPlaceholder(stringResource(selected.labelRes))
             }
         }
