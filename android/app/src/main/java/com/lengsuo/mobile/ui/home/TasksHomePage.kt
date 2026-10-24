@@ -1,6 +1,7 @@
 package com.lengsuo.mobile.ui.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,6 +38,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.lengsuo.mobile.R
+import com.lengsuo.mobile.ui.drawer.DRAWER_SAMPLE_CONVERSATIONS
+import com.lengsuo.mobile.ui.drawer.DrawerSidebar
 import com.lengsuo.mobile.ui.theme.LocalLengsuoColors
 
 // 首页 4 条快捷建议（截屏实证文案，见 strings.xml home_capsule_*）
@@ -51,6 +54,10 @@ internal val HOME_CAPSULES = listOf(
 fun TasksHomePage() {
     var bannerVisible by remember { mutableStateOf(true) }
     var refreshCount by remember { mutableStateOf(0) }
+    var drawerVisible by remember { mutableStateOf(false) }
+    // 当前选中对话（本地交互态，点击条目切换选中）
+    var selectedConversation by remember { mutableStateOf<Int?>(null) }
+    Box(modifier = Modifier.fillMaxSize()) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -66,6 +73,7 @@ fun TasksHomePage() {
                 Icons.Filled.Menu,
                 contentDescription = stringResource(R.string.home_top_drawer),
                 tint = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.clickable { drawerVisible = true },
             )
             Spacer(Modifier.width(12.dp))
             Text(
@@ -179,6 +187,17 @@ fun TasksHomePage() {
             },
         )
         Spacer(Modifier.height(16.dp))
+    }
+    DrawerSidebar(
+        visible = drawerVisible,
+        conversations = DRAWER_SAMPLE_CONVERSATIONS,
+        selectedIndex = selectedConversation,
+        onDismiss = { drawerVisible = false },
+        onSelectConversation = { index ->
+            selectedConversation = if (selectedConversation == index) null else index
+        },
+        onNewTask = { drawerVisible = false },
+    )
     }
 }
 
