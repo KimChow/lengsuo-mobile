@@ -27,4 +27,19 @@
     <string name="tab_discover">发现</string>
     <string name="tab_me">我的</string>
     <string name="tab_coming_soon">敬请期待</string>
+    <string name="home_header_title">WorkBuddy, 我帮你</string>
+    <string name="home_header_subtitle">你的职场超能力</string>
+    <string name="home_top_work_mode">☁ 工作模式 &gt;</string>
+    <string name="home_top_drawer">打开侧栏</string>
+    <string name="home_banner_placeholder">限时体验：组建你的专属助理团队</string>
+    <string name="home_banner_dismiss">关闭</string>
+    <string name="home_capsule_data_analysis">进行数据分析及可视化</string>
+    <string name="home_capsule_doc_process">进行文档处理</string>
+    <string name="home_capsule_slides">做一份幻灯片</string>
+    <string name="home_capsule_workspace">制作工作台</string>
+    <string name="home_capsule_refresh">换一换</string>
+    <string name="home_input_hint">发消息或按住说话</string>
+    <string name="home_input_attachment">添加附件</string>
+    <string name="home_input_voice">语音输入</string>
+    <string name="home_mascot_placeholder">WorkBuddy 吉祥物</string>
 </resources>
