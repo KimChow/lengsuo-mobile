@@ -93,13 +93,11 @@ private fun SettingsRow(entry: SettingsEntry, onClick: () -> Unit) {
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
-        when (entry.kind) {
-            SettingsRowKind.NAV ->
-                Text(
-                    text = "›",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-        }
+        // 本卡只有 NAV 形态（SettingsRowKind.NAV），行尾统一「›」
+        Text(
+            text = "›",
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }
