@@ -44,8 +44,8 @@ internal fun isEmptyState(conversations: List<String>): Boolean = conversations.
 /**
  * 对话列表侧栏抽屉（静态 + 本地交互）。
  * 实现 = Box + 条件渲染（不用 ModalNavigationDrawer，开关动画省略为直接显隐）。
- * 占位声明：云端/本地分组下拉无真实切换（点击无操作）、新建任务点击仅关抽屉、
- * 「任务 ▾」右侧列表管理图标材料未给，均不做。
+ * 占位声明：分组下拉（☁ 行）不做真实切换（点击无操作）、「+」胶囊点击仅关抽屉（无跳转）、
+ * 分组标题右侧列表管理图标材料未给，均不做。
  */
 @Composable
 fun DrawerSidebar(
@@ -75,7 +75,7 @@ fun DrawerSidebar(
                     color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.padding(start = 12.dp, top = 8.dp, bottom = 8.dp),
                 )
-                // + 新建任务胶囊：点击关抽屉（无跳转，占位）
+                // 「+」胶囊：点击关抽屉（无跳转，占位）
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
