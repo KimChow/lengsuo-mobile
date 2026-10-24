@@ -45,7 +45,7 @@ final class ScheduledTests: XCTestCase {
         XCTAssertEqual(store.tasks.map(\.name), ["第一"])
 
         store.add(name: "第三", prompt: "p3")
-        store.remove(at: IndexSet(integer: 1))
+        store.remove(atOffsets: IndexSet(integer: 1))
         XCTAssertEqual(store.tasks.map(\.name), ["第三"])
     }
 

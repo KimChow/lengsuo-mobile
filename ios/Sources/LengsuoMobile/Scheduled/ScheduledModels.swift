@@ -79,7 +79,7 @@ public final class ScheduledStore: ObservableObject {
         tasks.insert(ScheduledTask(name: name, prompt: prompt, frequency: frequency), at: 0)
     }
 
-    public func remove(at offsets: IndexSet) {
+    public func remove(atOffsets offsets: IndexSet) {
         tasks.remove(atOffsets: offsets)
     }
 
