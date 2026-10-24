@@ -1,7 +1,10 @@
 import SwiftUI
 
 /// 主壳：底部四 Tab（任务/定时任务/发现/我的）。
-/// 对齐 android-devguide/15 §2；除 `.scheduled`（ScheduledPage，mb-scheduled-ios）外均为占位页，实页由后续卡逐个接入。
+/// 对齐 android-devguide/15 §2。
+/// ⭐ 四 Tab 分派骨架由**主理人一次性落盘**：每张页面卡只改自己的目录
+/// （`Home/` `Scheduled/` `Discover/` `Me/`），互不触碰本文件 ⇒ 可并行派卡。
+/// 接线状态：.scheduled = 实页（mb-scheduled-ios）；其余三 Tab 为骨架占位，由后续卡逐个填入。
 public struct MainShell: View {
     @State private var selection: MainTab = .tasks
 
@@ -17,13 +20,13 @@ public struct MainShell: View {
         }
     }
 
-    /// 本卡只接 `.scheduled` 实页，其余 Tab 仍为占位。
     @ViewBuilder
     private func page(for tab: MainTab) -> some View {
-        if tab == .scheduled {
-            ScheduledPage()
-        } else {
-            PlaceholderPage(title: tab.title)
+        switch tab {
+        case .tasks: TasksHomePage()
+        case .scheduled: ScheduledPage()
+        case .discover: DiscoverPage()
+        case .me: MePage()
         }
     }
 }
