@@ -18,7 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.KeyboardVoice
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Icon
@@ -171,8 +171,9 @@ fun TasksHomePage() {
                 )
             },
             trailingIcon = {
+                // 麦克风占位：core 集合无 Mic/KeyboardVoice，待扩展图标库批准后替换
                 Icon(
-                    Icons.Filled.KeyboardVoice,
+                    Icons.Filled.PlayArrow,
                     contentDescription = stringResource(R.string.home_input_voice),
                 )
             },
