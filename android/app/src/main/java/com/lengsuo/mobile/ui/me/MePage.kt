@@ -40,20 +40,48 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.lengsuo.mobile.R
+import com.lengsuo.mobile.ui.settings.SettingsHubPage
+import com.lengsuo.mobile.ui.settings.SettingsPanelPlaceholder
+import com.lengsuo.mobile.ui.settings.settingsEntries
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MePage(modifier: Modifier = Modifier) {
     // 占位页状态：null = 我的页；非 null = 某一行的占位面板
     var opened by remember { mutableStateOf<MeEntry?>(null) }
+    // 设置中心内的面板占位：非 null = 已从设置中心点进某面板
+    var settingsPanelKey by remember { mutableStateOf<String?>(null) }
     val current = opened
     if (current != null) {
-        BackHandler { opened = null }
-        PanelPlaceholder(
-            title = stringResource(current.labelRes),
-            onBack = { opened = null },
-            modifier = modifier,
-        )
+        BackHandler {
+            opened = null
+            settingsPanelKey = null
+        }
+        if (current.key == "about") {
+            // 「关于」行 = 设置族入口 → 设置中心页；其余行仍走「敬请期待」占位
+            val panelKey = settingsPanelKey
+            if (panelKey != null) {
+                val panelEntry = settingsEntries().firstOrNull { it.key == panelKey }
+                SettingsPanelPlaceholder(
+                    panelKey = panelKey,
+                    title = panelEntry?.let { stringResource(it.labelRes) } ?: panelKey,
+                    onBack = { settingsPanelKey = null },
+                    modifier = modifier,
+                )
+            } else {
+                SettingsHubPage(
+                    onOpenPanel = { key -> settingsPanelKey = key },
+                    onBack = { opened = null },
+                    modifier = modifier,
+                )
+            }
+        } else {
+            PanelPlaceholder(
+                title = stringResource(current.labelRes),
+                onBack = { opened = null },
+                modifier = modifier,
+            )
+        }
         return
     }
     Scaffold(
