@@ -6,6 +6,7 @@ import com.lengsuo.mobile.ui.scheduled.ScheduleAddOption
 import com.lengsuo.mobile.ui.scheduled.ScheduleFrequency
 import com.lengsuo.mobile.ui.scheduled.ScheduledStore
 import com.lengsuo.mobile.ui.scheduled.isFormCreatable
+import java.io.File
 
 /**
  * 定时任务页纯数据断言。
@@ -17,6 +18,15 @@ class ScheduledPageTest {
 
     private fun check(name: String, condition: Boolean) {
         if (!condition) failures += name
+    }
+
+    private fun loadStringsXml(): String {
+        val file = listOf(
+            "app/src/main/res/values/strings.xml",
+            "src/main/res/values/strings.xml",
+        ).mapNotNull { File(it).takeIf { f -> f.exists() } }.firstOrNull()
+            ?: error("strings.xml not found; run from android/ or app/ dir")
+        return file.readText()
     }
 
     fun frequency_hasSevenOptionsInSpecOrder() {
@@ -99,6 +109,47 @@ class ScheduledPageTest {
         )
     }
 
+    fun resources_stringsXmlVerbatimEntries() {
+        // 资源 id 映射 + strings.xml 逐字文案双保险（同 ChatPageTest 惯例）。
+        val expected = listOf(
+            "sched_empty\">暂无定时任务<",
+            "sched_page_title\">定时任务<",
+            "sched_detail_breadcrumb\">定时任务<",
+            "sched_add_fab\">添加定时任务<",
+            "sched_sheet_custom_add\">自定义添加<",
+            "sched_sheet_add_via_chat\">以对话方式添加<",
+            "sched_sheet_cancel\">取消<",
+            "sched_form_hint\">定时任务仅支持「定时执行」一种触发形态<",
+            "sched_form_name_placeholder\">例如：每日同步项目动态<",
+            "sched_form_prompt_placeholder\">在这里输入要让 AI 完成的内容，例如：汇总过去 24 小时的项目动态，并整理待跟进事项。<",
+            "sched_form_schedule_time\">执行频率<",
+            "sched_freq_daily\">每天<",
+            "sched_freq_30m\">每 30 分钟<",
+            "sched_freq_1h\">每 1 小时<",
+            "sched_freq_2h\">每 2 小时<",
+            "sched_freq_4h\">每 4 小时<",
+            "sched_freq_8h\">每 8 小时<",
+            "sched_freq_biweekly\">双周<",
+            "sched_form_validity\">有效期<",
+            "sched_form_validity_long_term\">长期有效<",
+            "sched_form_connectors\">连接器<",
+            "sched_form_experts\">专家<",
+            "sched_form_skills\">技能<",
+            "sched_form_no_selection\">未选择 (0)<",
+            "sched_form_create\">创建<",
+            "sched_card_run\">运行<",
+            "sched_action_more\">更多操作<",
+            "sched_error_name_required\">请填写定时任务名称<",
+        )
+        val xml = loadStringsXml()
+        expected.forEach { needle ->
+            check(
+                "strings.xml 缺少逐字条目: $needle",
+                needle in xml,
+            )
+        }
+    }
+
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
@@ -109,6 +160,7 @@ class ScheduledPageTest {
             test.form_validationRequiresNonBlankName()
             test.store_addPutsNewTaskFirst_andRemoveWorks()
             test.resources_labelResBoundToSchedStrings()
+            test.resources_stringsXmlVerbatimEntries()
             if (test.failures.isEmpty()) {
                 println("ScheduledPageTest: all checks passed")
             } else {
